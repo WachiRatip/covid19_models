@@ -1,0 +1,1 @@
+stdbuf -oL python main.py > log

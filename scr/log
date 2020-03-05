@@ -1,0 +1,50 @@
+The number of days in the time-series data is 42.
+We separate time-series data into 2 sets; Train and Test which their size are 28 and 14 respectively.
+####################################################################################################
+population of the world is 7768726098.
+recovery rate is 0.3333333333333333.
+incubation rate is 1.0.
+contact rate is 0.6666666666666666.
+Initial number of infected, exposed and recovered individuals are 57398, 573980, and 18243 respectively.
+Now, the initial number of susceptible individuals is 7768076477.
+Initial number of infected, exposed and recovered individuals are 41455, 414550, and 51389 respectively.
+Now, the initial number of susceptible individuals is 7768218704.
+####################################################################################################
+++++++++++++++++++++++++++++++++++++++++++++++++++
+Building LSTM model for confirmed group.
+Epoch 0 train loss: 6.158866882324219 test loss: 9.841347694396973
+Epoch 10 train loss: 2.4547040462493896 test loss: 5.056288719177246
+Epoch 20 train loss: 1.8683948516845703 test loss: 2.739290237426758
+Epoch 30 train loss: 1.7438794374465942 test loss: 1.762814998626709
+Epoch 40 train loss: 1.3298391103744507 test loss: 1.0435969829559326
+Epoch 50 train loss: 1.22990083694458 test loss: 13.92790699005127
+Epoch 60 train loss: 0.9103198647499084 test loss: 266.5502624511719
+Epoch 70 train loss: 0.7680314779281616 test loss: 285.84686279296875
+Epoch 80 train loss: 0.3551406264305115 test loss: 211.55026245117188
+Epoch 90 train loss: 0.17115524411201477 test loss: 140.52052307128906
+++++++++++++++++++++++++++++++++++++++++++++++++++
+Building LSTM model for deaths group.
+Epoch 0 train loss: 4.044513702392578 test loss: 14.859356880187988
+Epoch 10 train loss: 1.8045811653137207 test loss: 8.924751281738281
+Epoch 20 train loss: 1.6124860048294067 test loss: 6.778517723083496
+Epoch 30 train loss: 1.1929115056991577 test loss: 0.34803277254104614
+Epoch 40 train loss: 0.9704440832138062 test loss: 46.64809036254883
+Epoch 50 train loss: 0.8308771848678589 test loss: 297.22735595703125
+Epoch 60 train loss: 0.5987680554389954 test loss: 371.5160217285156
+Epoch 70 train loss: 0.7955875992774963 test loss: 21.83644676208496
+Epoch 80 train loss: 0.8064891695976257 test loss: 142.43186950683594
+Epoch 90 train loss: 0.6134387254714966 test loss: 214.99276733398438
+++++++++++++++++++++++++++++++++++++++++++++++++++
+Building LSTM model for recovered group.
+Epoch 0 train loss: 2.38966703414917 test loss: 48.678794860839844
+Epoch 10 train loss: 1.393262505531311 test loss: 34.23091125488281
+Epoch 20 train loss: 1.104750156402588 test loss: 2.7497241497039795
+Epoch 30 train loss: 0.7346837520599365 test loss: 136.91563415527344
+Epoch 40 train loss: 0.5775691866874695 test loss: 490.1060791015625
+Epoch 50 train loss: 0.5146928429603577 test loss: 587.2735595703125
+Epoch 60 train loss: 0.47498199343681335 test loss: 556.81201171875
+Epoch 70 train loss: 1.8189760446548462 test loss: 438.30908203125
+Epoch 80 train loss: 1.0993859767913818 test loss: 28.433910369873047
+Epoch 90 train loss: 1.0272245407104492 test loss: 148.60281372070312
+####################################################################################################
+####################################################################################################
