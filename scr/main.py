@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import torch
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.tsa.arima_model import ARIMA
 
 # Fixed random seed
 RANDOM_SEED = 42
@@ -400,12 +403,221 @@ def lstm(time_series_data=[], validation_predicted_cases=[], predicted_cases=[])
     plt.savefig("future_lstm_model.jpg")
     plt.close()
 
+def is_stationary(total_cases):
+    ''' ARIMA model '''
+    # I've adapted code from original source: https://towardsdatascience.com/arima-forecasting-in-python-90d36c2246d3,
+    # https://medium.com/@josemarcialportilla/using-python-and-auto-arima-to-forecast-seasonal-time-series-90877adff03c
+    # https://towardsdatascience.com/machine-learning-part-19-time-series-and-autoregressive-integrated-moving-average-model-arima-c1005347b0d7
+    # https://www.machinelearningplus.com/time-series/arima-model-time-series-forecasting-python/
+    # and https://www.statsmodels.org/stable/tsa.html
+
+    SIGNIFICANCE = 0.05
+
+    rolling_mean = total_cases.rolling(window = 7).mean()
+    rolling_std = total_cases.rolling(window = 7).std()
+    plt.plot(total_cases, color = 'blue', label = 'Original')
+    plt.plot(rolling_mean, color = 'red', label = 'Rolling Mean')
+    plt.plot(rolling_std, color = 'black', label = 'Rolling Std')
+    plt.legend(loc = 'best')
+    plt.title('Rolling Mean & Rolling Standard Deviation')
+    plt.xticks(rotation=90)
+    plt.tight_layout()
+    plt.show()
+
+    result = adfuller(total_cases)
+    print('ADF Statistic: {}'.format(result[0]))
+    print('p-value: {}'.format(result[1]))
+    print('Critical Values:')
+    for key, value in result[4].items():
+        print('\t{}: {}'.format(key, value))
+
+    # let's calculate p-value to check if the timeseries is stationary
+    if result[1] >= SIGNIFICANCE:
+        print("This time-series is not stationary, d>0")
+    else:
+        print("This time-series is stationary, d=0")
+        
+def find_order(total_cases, partial=True):
+    if not partial:
+        fig = plt.figure(figsize=(10, 10))
+
+        ax1 = fig.add_subplot(311)
+        fig = plot_acf(total_cases, ax=ax1,
+                       title="Prtial Autocorrelation on Original Series") 
+        ax2 = fig.add_subplot(312)
+        fig = plot_acf(total_cases.diff().dropna(), ax=ax2, 
+                       title="1st Order Differencing")
+
+        ax3 = fig.add_subplot(313)
+        fig = plot_acf(total_cases.diff().diff().dropna(), ax=ax3, 
+                       title="2nd Order Differencing")
+
+    else:
+        fig = plt.figure(figsize=(10, 10))
+
+        ax1 = fig.add_subplot(311)
+        fig = plot_pacf(total_cases, ax=ax1,
+                       title="Prtial Autocorrelation on Original Series") 
+        ax2 = fig.add_subplot(312)
+        fig = plot_pacf(total_cases.diff().dropna(), ax=ax2, 
+                       title="1st Order Differencing")
+
+        ax3 = fig.add_subplot(313)
+        fig = plot_pacf(total_cases.diff().diff().dropna(), ax=ax3, 
+                       title="2nd Order Differencing")
+        
+def acf(total_cases):
+    fig = plt.figure(figsize=(20, 10))
+
+    ax1 = fig.add_subplot(321)
+    fig = plot_acf(total_cases, ax=ax1,
+                   title="Autocorrelation on Original Series") 
+    ax2 = fig.add_subplot(322)
+    ax2.plot(total_cases)
+    ax2.set_title("Autocorrelation on Original Series")
+    plt.xticks(rotation=90)
+
+    ax3 = fig.add_subplot(323)
+    fig = plot_acf(total_cases.diff().dropna(), ax=ax3, 
+                   title="1st Order Differencing")
+    ax4 = fig.add_subplot(324)
+    ax4.plot(total_cases.diff().dropna())
+    ax4.set_title("1st Order Differencing")
+    plt.xticks(rotation=90)
+
+    ax5 = fig.add_subplot(325)
+    fig = plot_acf(total_cases.diff().diff().dropna(), ax=ax5, 
+                   title="2nd Order Differencing")
+    ax6 = fig.add_subplot(326)
+    ax6.plot(total_cases.diff().diff().dropna())
+    ax6.set_title("2nd Order Differencing")
+    plt.xticks(rotation=90)
+    
+def pacf(total_cases):
+    fig = plt.figure(figsize=(20, 10))
+
+    ax1 = fig.add_subplot(321)
+    fig = plot_pacf(total_cases, ax=ax1,
+                   title="Partial Autocorrelation on Original Series") 
+    ax2 = fig.add_subplot(322)
+    ax2.plot(total_cases)
+    ax2.set_title("Partial Autocorrelation on Original Series")
+    plt.xticks(rotation=90)
+
+    ax3 = fig.add_subplot(323)
+    fig = plot_pacf(total_cases.diff().dropna(), ax=ax3, 
+                   title="1st Order Differencing")
+    ax4 = fig.add_subplot(324)
+    ax4.plot(total_cases.diff().dropna())
+    ax4.set_title("1st Order Differencing")
+    plt.xticks(rotation=90)
+
+    ax5 = fig.add_subplot(325)
+    fig = plot_pacf(total_cases.diff().diff().dropna(), ax=ax5, 
+                   title="2nd Order Differencing")
+    ax6 = fig.add_subplot(326)
+    ax6.plot(total_cases.diff().diff().dropna())
+    ax6.set_title("2nd Order Differencing")
+    plt.xticks(rotation=90)
+    
+
+def pdq_analysis(total_cases):
+    # Find the order of differencing, d:
+    print("WARNING!:  if the lag 1 autocorrelation itself is too negative, then the series is probably over-differenced.")
+    print("Finding the order of differencing (d) in ARIMA model")
+    acf(total_cases)
+    
+    # Find the order of the MA, q:
+    print("Finding the order of the MA term (q)")
+    #acf(total_cases)
+        
+    # Find the order of AR; p
+    print("Finding the order of the AR term (p)")
+    pacf(total_cases)
+    
+    
+def build_arima(total_cases, name, order): 
+    # future
+    DAYS_TO_PREDICT = 42+28
+    model = ARIMA(total_cases, order=order)
+    results = model.fit(disp=0)
+    print(results.summary())
+    
+    residuals = pd.DataFrame(results.resid)
+    fig, ax = plt.subplots(1,2)
+    residuals.plot(title="Residuals", ax=ax[0])
+    residuals.plot(kind='kde', title='Density', ax=ax[1])
+    plt.show()
+    plt.close()
+    
+    figure = results.plot_predict(1, TOTAL_DAYS+DAYS_TO_PREDICT, dynamic=False)
+    plt.title("ARIMA model for predition infected cases (future)")
+    plt.savefig(name+"_arima_model.jpg")
+    plt.show()
+    plt.close()
+    
+    fc, _, _ = results.forecast(DAYS_TO_PREDICT, alpha=0.05)
+    return fc
+    
+def build_arima_valiadation(total_cases, name, order):
+    # validation
+    model = ARIMA(total_cases[:-TEST_SIZE], order=order)
+    results = model.fit(disp=0)
+    print(results.summary())
+    fc, se, conf = results.forecast(TEST_SIZE, alpha=0.05)  # 95% conf
+    fc_series = pd.Series(fc, index=total_cases[-TEST_SIZE:].index)
+    lower_series = pd.Series(conf[:, 0], index=total_cases[-TEST_SIZE:].index)
+    upper_series = pd.Series(conf[:, 1], index=total_cases[-TEST_SIZE:].index)
+    plt.figure(figsize=(12,5), dpi=100)
+    plt.plot(total_cases[:-TEST_SIZE], label='training')
+    plt.plot(total_cases[-TEST_SIZE:], label='actual')
+    plt.plot(fc_series, label='forecast')
+    plt.fill_between(lower_series.index, lower_series, upper_series, 
+                     color='k', alpha=.15)
+    plt.title('ARIMA model for predition infected cases (validation)')
+    plt.legend(loc='upper left', fontsize=8)
+    plt.savefig(name+"_varidation_arima_model.jpg")
+    plt.show()
+    plt.close()
+    return fc
+    
+def arima(time_series_data=[], validation_predicted_cases=[], predicted_cases=[]):
+    time_series = time_series_data[0] - time_series_data[1] - time_series_data[2]
+    validation_cases = validation_predicted_cases[0] - validation_predicted_cases[1] - validation_predicted_cases[2]
+    future_cases = predicted_cases[0] - predicted_cases[1] - predicted_cases[2]
+    # plot validation graph
+    plt.plot(time_series[-TEST_SIZE:]/1000000, label="Real cases")
+    plt.plot(validation_cases/1000000, label="Predicted cases")
+    plt.ylabel('Number (millionth)')
+    plt.xlabel("14 days ago to now")
+    plt.title("ARIMA model for prediction infected cases (validation)")
+    plt.xticks(rotation=90)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("validation_arima_model.jpg")
+    plt.show()
+    plt.close()
+
+    # plot prediction graph
+    DAYS_TO_PREDICT = 42 + 28
+    t = np.linspace(0, DAYS_TO_PREDICT, DAYS_TO_PREDICT)
+    plt.plot(t, future_cases/1000000, label='Predicted Cases')
+    plt.xlabel("days from now")
+    plt.ylabel('Number (millionth)')
+    plt.title("ARIMA model for prediction infected cases (future)")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("future_arima_model.jpg")
+    plt.show()
+    plt.close()
+
 if __name__ == "__main__":
     print("#"*100)
     # mathematical model; SEIR model, a compartmental models in epidemiology.
     population, rate_of_contactive, rate_of_incubation, rate_of_recover_and_death = set_seir(reproductive_number = 2)
     seir_model(day_zero = -TEST_SIZE ) ## model from 14 days ago
-    seir_model() ## model from now on
+    seir_model() ## model forecast future from now on
+    
     print("#"*100)
     # machine learning model; Long-short Term Memory network (as known as LSTM model), a type of recurrent neural network designed model.
     total_confirmed = cases(csv="time_series_19-covid-Confirmed.csv", name="confirmed")
@@ -414,9 +626,38 @@ if __name__ == "__main__":
     confirmed_validation_predicted_cases, confirmed_predicted_cases = build_lstm(total_confirmed, name="confirmed")
     deaths_validation_predicted_cases, deaths_predicted_cases = build_lstm(total_death, name="deaths")
     recovered_validation_predicted_cases, recovered_predicted_cases = build_lstm(total_recovered, name="recovered")
+    # build LSTMs model
     lstm(time_series_data=[total_confirmed, total_death, total_recovered],
          validation_predicted_cases=[confirmed_validation_predicted_cases, deaths_validation_predicted_cases, recovered_validation_predicted_cases],
          predicted_cases=[confirmed_predicted_cases, deaths_predicted_cases, recovered_predicted_cases])
+    
     print("#"*100)
     # statistical model; ARIMA model, a time-series model.
+    total_confirmed = cases(csv="time_series_19-covid-Confirmed.csv", name="confirmed")
+    total_death = cases(csv="time_series_19-covid-Deaths.csv", name="deaths")
+    total_recovered = cases(csv="time_series_19-covid-Recovered.csv", name="recovered")
+
+    is_stationary(total_confirmed)
+    pdq_analysis(total_confirmed)
+    order = (1,1,1)
+    arima_confirmed = build_arima(total_cases=total_confirmed, name="confirmed", order=order)
+    arima_confirmed_validation = build_arima_valiadation(total_cases=total_confirmed, name="confirmed", order=order)
+    
+    is_stationary(total_death)
+    pdq_analysis(total_death)
+    order = (1,1,1)
+    arima_death = build_arima(total_cases=total_death, name="deaths", order=order)
+    arima_death_validation = build_arima_valiadation(total_cases=total_death, name="deaths", order=order)
+    
+    is_stationary(total_recovered)
+    pdq_analysis(total_recovered)
+    order = (1,1,1)
+    arima_recovered = build_arima(total_cases=total_recovered, name="recovered", order=order)
+    arima_recovered_validation = build_arima_valiadation(total_cases=total_recovered, name="recovered", order=order)
+    
+    # build ARIMA model
+    arima(time_series_data=[total_confirmed, total_death, total_recovered], 
+      validation_predicted_cases=[arima_confirmed_validation, arima_death_validation, arima_recovered_validation], 
+      predicted_cases=[arima_confirmed, arima_death, arima_recovered])
+
     print("#"*100)
