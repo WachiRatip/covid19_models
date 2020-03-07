@@ -46,8 +46,31 @@
 # How to use it
 การใช้งานไฟล์เหล่านี้สามารถใช้ได้หลายวิธีด้วยกันขึ้นอยู่กับความถนัดของแต่ละคน จะใช้งานผ่าน dockerfile หรือผ่าน python3 บนเครื่องโดยตรงก็ได้ หรือใช้งานผ่าน Google Colab (จะตามมาเร็ว ๆ นี้)
 
-# ใช้งานผ่าน Docker container
+### ใช้งานผ่าน Docker container
+##### สำหรับผู้ใช้ linux
+1. ติดตั้ง [Docker CE](https://docs.docker.com/install/linux/docker-ce/ubuntu/) ตาม Linux distribution ที่ใช้งาน
+2. เปิด Terminal แล้วย้าย Directory ไปที่ ๆ dockerfile อยู่ แล้วใช้คำสั่ง sudo bash build.sh start
+3. เชื่อมต่อผ่าน juyther notebook ผ่าน link ที่แสดงใน Terminal หรือเข้าผ่าน VScode ด้วย [extension Remote - Containers](https://code.visualstudio.com/docs/remote/containers)
+4. เมื่อเลิกใช้งานให้กด ctrl+C ขณะเปิดหน้า Terminal
+##### สำหรับผู้ใช้ Windows หรือ MacOS
+1. ติดตั้ง [Docker Desktop](https://www.docker.com/products/docker-desktop) และเปิดใช้งาน Docker Desktop
+2. เปิด Terminal(MacOS) หรือ Power Shell(Windows) แล้วย้าย Directory ไปที่ ๆ dockerfile
+3. ใช้คำสั่ง docker build -t "covid_model":"1.0.0" . เพื่อสร้าง Docker Image
+4. ใช้คำสั่ง docker run -p 8888:8888 --name "container_covid" -v $(pwd)/scr:/home:rw "covid_model":"1.0.0" เพื่อสร้าง Container (สังเกตว่า "covid_model":"1.0.0" จะตรงกับตอนสร้าง Docker Image)
+5. เชื่อมต่อผ่าน juyther notebook ผ่าน link ที่แสดงใน Terminal หรือเข้าผ่าน VScode ด้วย [extension Remote - Containers](https://code.visualstudio.com/docs/remote/containers)
+6. เมื่อเลิกใช้งานให้กด ctrl+C ขณะเปิดหน้า Terminal หรือ Power Shell
 
-# ใช้งานผ่านการรัน python code โดยตรง
+### ใช้งานผ่านการรัน python code โดยตรง
+##### สำหรับผู้ใช้ linux
+1. ติดตั้ง python version 3.6.9 ขึ้นไป แต่โดยทั่วไป linux มักติดตั้ง python3 มาให้อยู่แล้ว (พิมพ์ python3 --version หรือ python --version เพื่อทดสอบ)
+2. ติดตั้ง packages ที่จำเป็นทั้งหมดคือ pytoch, torchvision, numpy, pandas, scipy, matplotlib, joblib, scikit-learn, และ statsmodels   
+   หรือใช้คำสั่ง pip3 install requirements.txt หรือ pip install requirements.txt (ต้องติดตั้ง pip/pip3 ก่อนหากยังไม่ติดตั้ง)
+3. เปิดไฟล์ main.py หรือ main.ipynb เพื่อรันโปรแกรมผ่าน editor/ide ที่ถนัดได้เลย
+##### สำหรับผู้ใช้ Windows หรือ MacOS
+1. ติดตั้ง python version 3.6.9 แนะนำ [Anaconda Distribution](https://www.anaconda.com/distribution/)
+2. ติดตั้ง packages ที่จำเป็นทั้งหมดคือ pytoch, torchvision, numpy, pandas, scipy, matplotlib, joblib, scikit-learn, และ statsmodels 
+   หรือใช้คำสั่ง pip3 install requirements.txt หรือ pip install requirements.txt (Note: แก้ไขไฟล์ requirements.txt ในส่วนของ pytorch ให้เป็นลิงค์ตาม OS ที่ใช้งาน [ดูชื่อ link](https://download.pytorch.org/whl/cpu/torch_stable.html))
+3. เปิดไฟล์ main.py หรือ main.ipynb เพื่อรันโปรแกรมผ่าน editor/ide ที่ถนัดได้เลย
 
-# ใช้งานผ่าน Google Colab
+### ใช้งานผ่าน Google Colab
+###### [Google Colab](https://colab.research.google.com/drive/1mLQAKkSjh2RcQ7fKAC8OzfM6P4SqhMWG?fbclid=IwAR3ZD5Zl-4bw_ECZKLXqySlq6re-RBsipjJh9muKdFmKVcSUB1h9yu1MLBE)(แบบแก้ไขได้จะตามมาเร็ว ๆ นี้)
