@@ -1,6 +1,6 @@
 # setting variables
 NAME="covid19_model_on_pytorch"
-CNAME="container_covid19_model_on_pytorch"
+CNAME="container_${NAME}"
 TAG="1.0.0"
 
 if [ "$1" == "start" ]
@@ -15,7 +15,7 @@ then
     sudo docker image prune -a -f &&
     sudo docker volume prune -f
 else
-    # if arg is "stop"
+    # if arg is "stop" or anything else
     sudo docker rm -f $(docker ps -aq)
 fi
 
@@ -23,6 +23,7 @@ fi
 unset NAME
 unset CNAME
 unset TAG
+
 # show result
 sudo docker image ls &&
 sudo docker ps
