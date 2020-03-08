@@ -65,12 +65,12 @@
 ##### สำหรับผู้ใช้ linux
 1. ติดตั้ง python version 3.6.9 ขึ้นไป แต่โดยทั่วไป linux มักติดตั้ง python3 มาให้อยู่แล้ว (พิมพ์ python3 --version หรือ python --version เพื่อทดสอบ)
 2. ติดตั้ง packages ที่จำเป็นทั้งหมดคือ pytoch, torchvision, numpy, pandas, scipy, matplotlib, joblib, scikit-learn, และ statsmodels   
-   หรือใช้คำสั่ง pip3 install requirements.txt หรือ pip install requirements.txt (ต้องติดตั้ง pip/pip3 ก่อนหากยังไม่ติดตั้ง)
+   หรือใช้คำสั่ง pip3 install -r requirements.txt หรือ pip install -r requirements.txt (ต้องติดตั้ง pip/pip3 ก่อนหากยังไม่ติดตั้ง)
 3. เปิดไฟล์ main.py หรือ main.ipynb เพื่อรันโปรแกรมผ่าน editor/ide ที่ถนัดได้เลย
 ##### สำหรับผู้ใช้ Windows หรือ MacOS
 1. ติดตั้ง python version 3.6.9 แนะนำ [Anaconda Distribution](https://www.anaconda.com/distribution/)
 2. ติดตั้ง packages ที่จำเป็นทั้งหมดคือ pytoch, torchvision, numpy, pandas, scipy, matplotlib, joblib, scikit-learn, และ statsmodels 
-   หรือใช้คำสั่ง pip3 install requirements.txt หรือ pip install requirements.txt (Note: แก้ไขไฟล์ requirements.txt ในส่วนของ pytorch ให้เป็นลิงค์ตาม OS ที่ใช้งาน [ดูชื่อ link](https://download.pytorch.org/whl/cpu/torch_stable.html))
+   หรือใช้คำสั่ง pip3 install -r requirements.txt หรือ pip install -r requirements.txt (Note: แก้ไขไฟล์ requirements.txt ในส่วนของ pytorch ให้เป็นลิงค์ตาม OS ที่ใช้งาน [ดูชื่อ link](https://download.pytorch.org/whl/cpu/torch_stable.html))
 3. เปิดไฟล์ main.py หรือ main.ipynb เพื่อรันโปรแกรมผ่าน editor/ide ที่ถนัดได้เลย
 
 ### ใช้งานผ่าน Google Colab
