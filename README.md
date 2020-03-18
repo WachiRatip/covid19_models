@@ -56,8 +56,9 @@
 1. ติดตั้ง [Docker Desktop](https://www.docker.com/products/docker-desktop) และเปิดใช้งาน Docker Desktop
 2. เปิด Terminal(MacOS) หรือ Power Shell(Windows) แล้วย้าย Directory ไปที่ ๆ dockerfile อยู่
 3. ใช้คำสั่ง docker build -t covid19_model:1.0.0 . เพื่อสร้าง Docker Image
-4. ใช้คำสั่ง docker run -p 8888:8888 --name container_covid covid19_model:1.0.0 เพื่อสร้าง Container  
-   (สังเกตว่า covid_model:1.0.0 จะตรงกับตอนสร้าง Docker Image) (ไม่มีการ volume binding ระวัง! ไฟล์ใน Container หายเมื่อลบมันทิ้ง)
+4. ใช้คำสั่ง docker run -p 8888:8888 --name container_covid -v ${pwd}\scr:/home covid19_model:1.0.0 (สำหรับ windows) หรือ
+   docker run -p 8888:8888 --name container_covid -v -v $(pwd)/scr:/home covid19_model:1.0.0 (สำหรับ macOS) เพื่อสร้าง Container  
+   (สังเกตว่า covid_model:1.0.0 จะตรงกับตอนสร้าง Docker Image)
 5. เชื่อมต่อผ่าน juyther notebook ผ่าน link ที่แสดงใน Terminal หรือเข้าผ่าน VScode ด้วย [extension Remote - Containers](https://code.visualstudio.com/docs/remote/containers)
 6. เมื่อเลิกใช้งานให้กด ctrl+C ขณะเปิดหน้า Terminal หรือ Power Shell
 
