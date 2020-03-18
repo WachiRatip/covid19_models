@@ -5,7 +5,7 @@ $command=$args[0]
 if ($command -eq "start") {
     # run container
     ## for Windows
-    docker run -p 8888:8888 --name container_covid19 -v ${pwd}\source:/home  covid19_python369:1.0.0
+    docker run -p 8888:8888 --name container_covid19 -v ${pwd}\scr:/home  covid19_python369:1.0.0
 }
 else {
     # delete container, image and volume
