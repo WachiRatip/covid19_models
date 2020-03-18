@@ -1,3 +1,4 @@
+#!/bin/bash
 # setting variables
 NAME="covid19_model_on_pytorch"
 CNAME="container_${NAME}"
