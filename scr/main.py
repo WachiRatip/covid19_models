@@ -13,6 +13,13 @@ from statsmodels.tsa.stattools import adfuller
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.arima_model import ARIMA
 
+# DATA
+URL = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/"
+CONFIRMED="time_series_covid19_confirmed_global.csv" 
+DEATH="time_series_covid19_deaths_global.csv"
+RECOVERED="time_series_covid19_recovered_global.csv"
+
+
 # Fixed random seed
 RANDOM_SEED = 42
 np.random.seed(RANDOM_SEED)
@@ -25,18 +32,16 @@ if CURRENT_PATH != EXPECTED_PATH:
     os.chdir(EXPECTED_PATH)
 
 # Download dataset from GitHub which was provided by the Johns Hopkins University Center for Systems Science and Engineering (JHU CSSE).
-if not os.path.isfile("./dataset/time_series_19-covid-Confirmed.csv"):
-    
-    DATASET_NAME = {"time_series_19-covid-Confirmed.csv", "time_series_19-covid-Deaths.csv", "time_series_19-covid-Recovered.csv"}
-    for name in DATASET_NAME:
-        url = os.path.join("https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series", name)
+if not os.path.isfile(f"./dataset/{CONFIRMED}"):
+    for name in [CONFIRMED, DEATH, RECOVERED]:
+        url = os.path.join(URL, name)
         r = requests.get(url)
         file_csv = open(os.path.join("./dataset", name), 'wb')
         file_csv.write(r.content)
         file_csv.close()
 
 # Set train and test in Mathematical, Statistical and Machine learning model
-temp_time_series_csv = pd.read_csv(os.path.join("dataset","time_series_19-covid-Confirmed.csv")).iloc[:, 4:].sum(axis=0)
+temp_time_series_csv = pd.read_csv(os.path.join("dataset",CONFIRMED)).iloc[:, 4:].sum(axis=0)
 TOTAL_DAYS = int(temp_time_series_csv.shape[0])
 print(u"The number of days in the time-series data is {}.".format(TOTAL_DAYS))
 ## set test size is 14 days
@@ -52,9 +57,9 @@ def set_seir(reproductive_number = 2):
     print(u"population of the world is {}.".format(population))
 
     ## recovery rate is the mean of recovered and death cases of the total cases
-    _death = pd.read_csv(os.path.join("dataset","time_series_19-covid-Deaths.csv")).iloc[:, 4:].sum(axis=0)
+    _death = pd.read_csv(os.path.join("dataset",DEATH)).iloc[:, 4:].sum(axis=0)
     _death = _death.diff().fillna(_death[0]).astype(np.int64)
-    _recovery = pd.read_csv(os.path.join("dataset","time_series_19-covid-Recovered.csv")).iloc[:, 4:].sum(axis=0)
+    _recovery = pd.read_csv(os.path.join("dataset",RECOVERED)).iloc[:, 4:].sum(axis=0)
     _recovery = _recovery.diff().fillna(_recovery[0]).astype(np.int64)
     _recovery_and_death = _death + _recovery
     _recovery_and_death = _recovery_and_death.pct_change().fillna("0").astype(np.int64)
@@ -62,7 +67,7 @@ def set_seir(reproductive_number = 2):
     print(u"recovery rate is {}.".format(rate_of_recover_and_death))
 
     ## incubation rate is the mean of confirmed cases of the total cases
-    _confirmed = pd.read_csv(os.path.join("dataset","time_series_19-covid-Confirmed.csv")).iloc[:, 4:].sum(axis=0)
+    _confirmed = pd.read_csv(os.path.join("dataset",CONFIRMED)).iloc[:, 4:].sum(axis=0)
     _confirmed = _confirmed.diff().fillna(_confirmed[0]).astype(np.int64)
     _confirmed = _confirmed.pct_change().fillna("0").astype(np.int64)
     rate_of_incubation = _confirmed.mean()
@@ -83,10 +88,10 @@ def seir_model(day_zero = -1):
     # Initial number of infected, exposed and recovered individuals, I0, E0 and R0.
     ## Initial rnumber of recovered cases is the number of recovered plus death cases in the lastest day in the time series 
     ### day_zero = -1 means use the lastest day in the time-series as day 0 of epidemic
-    R0 = pd.read_csv(os.path.join("dataset","time_series_19-covid-Deaths.csv")).iloc[:, day_zero].sum(axis=0).astype(np.int64) +\
-            pd.read_csv(os.path.join("dataset","time_series_19-covid-Recovered.csv")).iloc[:, day_zero].sum(axis=0).astype(np.int64)
+    R0 = pd.read_csv(os.path.join("dataset",DEATH)).iloc[:, day_zero].sum(axis=0).astype(np.int64) +\
+            pd.read_csv(os.path.join("dataset",RECOVERED)).iloc[:, day_zero].sum(axis=0).astype(np.int64)
     ## Initial rnumber of infected cases is confirmed minus death and recovered cases in lastest day in the time series 
-    I0 = pd.read_csv(os.path.join("dataset","time_series_19-covid-Confirmed.csv")).iloc[:, day_zero].sum(axis=0).astype(np.int64) - R0
+    I0 = pd.read_csv(os.path.join("dataset",CONFIRMED)).iloc[:, day_zero].sum(axis=0).astype(np.int64) - R0
     ## assume that confirmed cases is nothing but merely the tip of the iceberg; therefore, let confirmed infected group is ten percent of exposed group.
     E0 = 10 * I0 
     S0 = N - I0 - R0 - E0
@@ -141,9 +146,9 @@ def seir_model(day_zero = -1):
         plt.close()
 
     else:
-        total_confirmed = cases(csv="time_series_19-covid-Confirmed.csv", name="confirmed")[-TEST_SIZE:]
-        total_death = cases(csv="time_series_19-covid-Deaths.csv", name="deaths")[-TEST_SIZE:]
-        total_recovered = cases(csv="time_series_19-covid-Recovered.csv", name="recovered")[-TEST_SIZE:]
+        total_confirmed = cases(csv=CONFIRMED, name="confirmed")[-TEST_SIZE:]
+        total_death = cases(csv=DEATH, name="deaths")[-TEST_SIZE:]
+        total_recovered = cases(csv=RECOVERED, name="recovered")[-TEST_SIZE:]
         real_I = total_confirmed - total_death - total_recovered
         plt.plot(real_I.index[:TEST_SIZE], real_I/1000000, 'r', alpha=0.5, lw=2, label='Real Infected cases')
         plt.plot(real_I.index[:TEST_SIZE], I[:TEST_SIZE]/1000000, 'b', alpha=0.5, lw=2, label='Predicted Infected cases')
@@ -620,9 +625,9 @@ if __name__ == "__main__":
     
     print("#"*100)
     # machine learning model; Long-short Term Memory network (as known as LSTM model), a type of recurrent neural network designed model.
-    total_confirmed = cases(csv="time_series_19-covid-Confirmed.csv", name="confirmed")
-    total_death = cases(csv="time_series_19-covid-Deaths.csv", name="deaths")
-    total_recovered = cases(csv="time_series_19-covid-Recovered.csv", name="recovered")
+    total_confirmed = cases(csv=CONFIRMED, name="confirmed")
+    total_death = cases(csv=DEATH, name="deaths")
+    total_recovered = cases(csv=RECOVERED, name="recovered")
     confirmed_validation_predicted_cases, confirmed_predicted_cases = build_lstm(total_confirmed, name="confirmed")
     deaths_validation_predicted_cases, deaths_predicted_cases = build_lstm(total_death, name="deaths")
     recovered_validation_predicted_cases, recovered_predicted_cases = build_lstm(total_recovered, name="recovered")
@@ -633,9 +638,9 @@ if __name__ == "__main__":
     
     print("#"*100)
     # statistical model; ARIMA model, a time-series model.
-    total_confirmed = cases(csv="time_series_19-covid-Confirmed.csv", name="confirmed")
-    total_death = cases(csv="time_series_19-covid-Deaths.csv", name="deaths")
-    total_recovered = cases(csv="time_series_19-covid-Recovered.csv", name="recovered")
+    total_confirmed = cases(csv=CONFIRMED, name="confirmed")
+    total_death = cases(csv=DEATH, name="deaths")
+    total_recovered = cases(csv=RECOVERED, name="recovered")
 
     is_stationary(total_confirmed)
     pdq_analysis(total_confirmed)
